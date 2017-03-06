@@ -14,8 +14,7 @@ def clone_or_update_repo(url=None, repo_name=None):
         raise Exception('No repo_name provided')
 
     path = path.join(get_repo_path(), repo_name)
-    if
-
+    # Check if there's an existing clone
     repo = Repo(path)
 
     if not repo:
