@@ -15,7 +15,7 @@ def get_repo_path():
     path = os.path.dirname(path)
     # /path/to/radar/
 
-    path = os.path.join(path, radar.app.config.get('GIT_REPOS', ''))
+    path = os.path.join(path, radar.app.config.get('GIT_REPO_PATH', ''))
     # /path/to/radar/<git_repos>
 
     return path
