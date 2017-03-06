@@ -1,7 +1,7 @@
-from radar import db, Commit
 from radar.lib import get_repo_path
 from git import Repo
-import os.path as path
+import git.exc
+import os.path
 
 
 def clone_or_update_repo(url=None, repo_name=None):
@@ -13,9 +13,12 @@ def clone_or_update_repo(url=None, repo_name=None):
     if not repo_name:
         raise Exception('No repo_name provided')
 
-    path = path.join(get_repo_path(), repo_name)
+    path = os.path.join(get_repo_path(), repo_name)
     # Check if there's an existing clone
-    repo = Repo(path)
+    try:
+        repo = Repo(path)
+    except git.exc.NoSuchPathError:
+        repo = None
 
     if not repo:
         repo = Repo.clone_from(url, path)
