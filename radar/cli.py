@@ -4,7 +4,7 @@ import git.exc
 import os.path
 
 
-def clone_or_update_repo(url=None, repo_name=None):
+def get_repo(url=None, repo_name=None):
     '''
     Clone a repo to the path provided
     '''
@@ -24,7 +24,5 @@ def clone_or_update_repo(url=None, repo_name=None):
         repo = Repo.clone_from(url, path)
         if not repo:
             raise Exception('Could not clone the repository')
-        return repo
 
-    repo.remote.pull()
     return repo
