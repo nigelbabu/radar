@@ -5,7 +5,6 @@ from radar import app, db
 from radar.models import Commit
 from radar.cli import get_repo
 from datetime import datetime
-from pytz import timezone
 
 
 manager = Manager(app)
@@ -27,12 +26,19 @@ def update_repo(name):
     branches = repos[name].get('branches', ['master'])
     repo = get_repo(url, name)
     repo.remote().update()
-    tz = timezone('US/Pacific')
     for branch in branches:
-        print branch
         repo.git.checkout(branch)
         repo.remote().pull(branch)
-        for commit in repo.iter_commits(branch, max_count=10):
+        # Get the last 10 commits if there are no entries for this branch
+        rev = "HEAD~10...HEAD"
+        # Find the latest commit for each branch
+        latest = Commit.query.filter_by(branch=branch
+                ).order_by(Commit.commit_time.desc()).first()
+        if latest:
+            rev = "HEAD...{}".format(latest.commit_hash)
+
+        for commit in repo.iter_commits(rev):
+            # Check if the commit exists before creating a new entry
             change = Commit.query.filter_by(
                     commit_hash=commit.hexsha,
                     branch=branch
@@ -42,7 +48,10 @@ def update_repo(name):
                         commit_hash=commit.hexsha,
                         summary=commit.summary,
                         branch=branch,
-                        author=u"{} <{}>".format(commit.author.name, commit.author.email),
+                        author=u"{} <{}>".format(
+                            commit.author.name,
+                            commit.author.email
+                        ),
                         commit_time=commit.committed_datetime,
                 )
                 db.session.add(change)
